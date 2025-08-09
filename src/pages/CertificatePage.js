@@ -90,13 +90,13 @@ const CertificatePage = () => {
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-6 py-12">
             <div className="text-center mb-10">
-                <h1 className="text-4xl md:text-5xl font-bold text-white">Congratulations!</h1>
-                <p className="text-lg text-gray-300 mt-2">You've earned a certificate for this track. Enter your name and download it.</p>
+                <h1 className="text-4xl md:text-5xl font-bold text-white">تهانينا!</h1>
+                <p className="text-lg text-gray-300 mt-2">لقد حصلت على شهادة إتمام هذا المسار. أدخل اسمك وقم بتنزيلها.</p>
             </div>
 
             <div className="max-w-md mx-auto mb-10">
-                <label htmlFor="studentName" className="block text-white text-lg font-medium mb-2 text-left">Your Full Name for the Certificate</label>
-                <input id="studentName" type="text" value={studentName} onChange={handleNameChange} placeholder="e.g., Alex Smith" className="w-full bg-gray-800 border-2 border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-purple-500 transition-colors text-left" />
+                <label htmlFor="studentName" className="block text-white text-lg font-medium mb-2 text-right">اسمك الكامل على الشهادة</label>
+                <input id="studentName" type="text" value={studentName} onChange={handleNameChange} placeholder="مثال: أحمد محمد" className="w-full bg-gray-800 border-2 border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-purple-500 transition-colors text-right" />
             </div>
             
             <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.7, type: 'spring' }}>
@@ -110,7 +110,7 @@ const CertificatePage = () => {
                     className="bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-bold py-4 px-12 rounded-lg text-xl shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 mx-auto"
                 >
                     <DownloadSimpleIcon size={28} />
-                    {isDownloading ? 'Preparing...' : !libsLoaded ? 'Loading Libraries...' : 'Download Certificate (PDF)'}
+                    {isDownloading ? 'جارٍ التحضير...' : !libsLoaded ? 'تحميل المكتبات...' : 'تنزيل الشهادة (PDF)'}
                 </button>
             </div>
         </motion.div>
@@ -118,3 +118,4 @@ const CertificatePage = () => {
 };
 
 export default CertificatePage;
+

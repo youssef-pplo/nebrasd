@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProgress } from '../context/ProgressContext';
-import { CheckCircleIcon, XCircleIcon, CertificateIcon } from '../icons/Icons';
+import { CheckCircleIcon, XCircleIcon, CertificateIcon, ArrowRightIcon } from '../icons/Icons';
 
-const Quiz = ({ track }) => {
+const Quiz = ({ trackId, quiz, isFinalQuiz, sessionId, handleNext, currentSessionIndex, totalSessions }) => {
     const [selectedAnswers, setSelectedAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const [score, setScore] = useState(0);
     const navigate = useNavigate();
     const { updateProgress } = useProgress();
+
+    // Reset state when the session (and thus sessionId) changes
+    useEffect(() => {
+        setSubmitted(false);
+        setSelectedAnswers({});
+        setScore(0);
+    }, [sessionId]);
 
     const handleSelectAnswer = (questionIndex, option) => {
         if (submitted) return;
@@ -22,7 +29,7 @@ const Quiz = ({ track }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         let currentScore = 0;
-        track.quiz.forEach((q, index) => {
+        quiz.forEach((q, index) => {
             if (selectedAnswers[index] === q.correctAnswer) {
                 currentScore++;
             }
@@ -30,8 +37,8 @@ const Quiz = ({ track }) => {
         setScore(currentScore);
         setSubmitted(true);
 
-        if (currentScore === track.quiz.length) {
-            updateProgress(track.id);
+        if (currentScore === quiz.length) {
+            updateProgress(trackId, isFinalQuiz, sessionId);
         }
     };
 
@@ -46,19 +53,19 @@ const Quiz = ({ track }) => {
         return 'bg-gray-800 border-gray-700 opacity-70';
     };
     
-    const allQuestionsAnswered = Object.keys(selectedAnswers).length === track.quiz.length;
+    const allQuestionsAnswered = Object.keys(selectedAnswers).length === quiz.length;
 
     return (
         <div className="mt-12">
-            <h2 className="text-4xl font-bold text-white mb-8 text-center">اختبر معلوماتك</h2>
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">{isFinalQuiz ? "أسئلة الاختبار النهائي" : "اختبر معلوماتك في هذا الجزء"}</h2>
             <form onSubmit={handleSubmit}>
-                {track.quiz.map((q, index) => (
+                {quiz.map((q, index) => (
                     <motion.div 
                         key={index} 
                         className="bg-gray-800 p-6 rounded-lg mb-6 shadow-md"
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.2 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
                     >
                         <p className="text-xl font-semibold text-white mb-4">{index + 1}. {q.question}</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -84,7 +91,7 @@ const Quiz = ({ track }) => {
                 ))}
                 
                 {!submitted && (
-                    <div className="text-center mt-8">
+                    <div className="mt-8 flex justify-center items-center">
                         <button 
                             type="submit"
                             disabled={!allQuestionsAnswered}
@@ -105,19 +112,30 @@ const Quiz = ({ track }) => {
                         className="mt-10 bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 text-center"
                     >
                         <h3 className="text-3xl font-bold text-white">نتيجتك</h3>
-                        <p className="text-6xl font-bold my-4" style={{ color: score === track.quiz.length ? '#4ade80' : '#f87171' }}>
-                            {score} / {track.quiz.length}
+                        <p className="text-6xl font-bold my-4" style={{ color: score === quiz.length ? '#4ade80' : '#f87171' }}>
+                            {score} / {quiz.length}
                         </p>
-                        {score === track.quiz.length ? (
+                        {score === quiz.length ? (
                             <>
-                                <p className="text-green-300 text-xl mb-6">ممتاز! لقد أتقنت هذا المسار بنجاح.</p>
-                                <button
-                                    onClick={() => navigate(`/certificate/${track.id}`)}
-                                    className="bg-green-500 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg hover:shadow-green-500/50 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto"
-                                >
-                                    <CertificateIcon size={24} />
-                                    الحصول على الشهادة
-                                </button>
+                                <p className="text-green-300 text-xl mb-6">{isFinalQuiz ? 'ممتاز! لقد أتقنت هذا المسار بنجاح.' : 'أحسنت! إجابتك صحيحة.'}</p>
+                                {isFinalQuiz ? (
+                                    <button
+                                        onClick={() => navigate(`/certificate/${trackId}`)}
+                                        className="bg-green-500 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg hover:shadow-green-500/50 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto"
+                                    >
+                                        <CertificateIcon size={24} />
+                                        الحصول على الشهادة
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={handleNext}
+                                        disabled={currentSessionIndex === totalSessions - 1}
+                                        className="bg-blue-500 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        الدرس التالي
+                                        <ArrowRightIcon size={20} />
+                                    </button>
+                                )}
                             </>
                         ) : (
                             <>
@@ -138,3 +156,4 @@ const Quiz = ({ track }) => {
 };
 
 export default Quiz;
+
