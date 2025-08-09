@@ -17,6 +17,10 @@ const CertificatePage = () => {
     const [libsLoaded, setLibsLoaded] = useState(false);
 
     const loadScript = (src) => new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) {
+            resolve();
+            return;
+        }
         const script = document.createElement('script');
         script.src = src;
         script.onload = () => resolve(script);
@@ -37,20 +41,18 @@ const CertificatePage = () => {
             console.error("Failed to load name from localStorage:", error);
         }
 
-        if (window.html2canvas && window.jspdf) {
+        if (window.html2canvas) {
             setLibsLoaded(true);
             return;
         }
 
-        Promise.all([
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
-        ]).then(() => {
-            setLibsLoaded(true);
-        }).catch(error => {
-            console.error("Failed to load PDF libraries:", error);
-            alert("Failed to load libraries for certificate generation. Please refresh and try again.");
-        });
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')
+            .then(() => {
+                setLibsLoaded(true);
+            }).catch(error => {
+                console.error("Failed to load html2canvas library:", error);
+                alert("Failed to load library for certificate generation. Please refresh and try again.");
+            });
 
     }, [trackId, isTrackCompleted, navigate]);
 
@@ -69,20 +71,25 @@ const CertificatePage = () => {
             return;
         }
         setIsDownloading(true);
-        const { jsPDF } = window.jspdf;
         
-        window.html2canvas(certificateRef.current, { scale: 2, useCORS: true, backgroundColor: '#f9fafb' })
-            .then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: [canvas.width, canvas.height] });
-                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-                pdf.save(`${studentName}_${track.id}_certificate.pdf`);
-                setIsDownloading(false);
-            }).catch(err => {
-                console.error("Error generating PDF:", err);
-                setIsDownloading(false);
-                alert("An error occurred while generating the certificate. Please try again.");
-            });
+        window.html2canvas(certificateRef.current, { 
+            scale: 3, // Increase scale for higher resolution
+            useCORS: true,
+            backgroundColor: '#111827' // bg-gray-900
+        }).then(canvas => {
+            const image = canvas.toDataURL('image/png', 1.0); // Get image data URL
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = `Nebras_Certificate_${track.id}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setIsDownloading(false);
+        }).catch(err => {
+            console.error("Error generating image:", err);
+            setIsDownloading(false);
+            alert("An error occurred while generating the certificate. Please try again.");
+        });
     };
 
     if (!track) return null;
@@ -99,8 +106,13 @@ const CertificatePage = () => {
                 <input id="studentName" type="text" value={studentName} onChange={handleNameChange} placeholder="مثال: أحمد محمد" className="w-full bg-gray-800 border-2 border-gray-700 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-purple-500 transition-colors text-right" />
             </div>
             
-            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.7, type: 'spring' }}>
-                <CertificateDisplay ref={certificateRef} trackTitle={track.title} studentName={studentName} date={new Date().toLocaleDateString('en-US')} />
+            <motion.div 
+                initial={{ y: 50, opacity: 0 }} 
+                animate={{ y: 0, opacity: 1 }} 
+                transition={{ duration: 0.7, type: 'spring' }}
+                className="w-full max-w-4xl mx-auto aspect-[11/8.5]"
+            >
+                <CertificateDisplay ref={certificateRef} trackTitle={track.title} studentName={studentName} date={new Date().toLocaleDateString('ar-EG')} />
             </motion.div>
 
             <div className="text-center mt-10">
@@ -110,7 +122,7 @@ const CertificatePage = () => {
                     className="bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-bold py-4 px-12 rounded-lg text-xl shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 mx-auto"
                 >
                     <DownloadSimpleIcon size={28} />
-                    {isDownloading ? 'جارٍ التحضير...' : !libsLoaded ? 'تحميل المكتبات...' : 'تنزيل الشهادة (PDF)'}
+                    {isDownloading ? 'جارٍ التحضير...' : !libsLoaded ? 'تحميل المكتبات...' : 'تنزيل الشهادة (صورة)'}
                 </button>
             </div>
         </motion.div>

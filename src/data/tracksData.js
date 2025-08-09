@@ -794,6 +794,43 @@ export const tracksData = [
             { question: 'What is the difference between `git pull` and `git fetch`?', options: ['They are the same', '`git fetch` downloads remote changes but does not merge, `git pull` does both', '`git pull` downloads remote changes but does not merge, `git fetch` does both', '`git fetch` is for uploading, `git pull` is for downloading'], correctAnswer: '`git fetch` downloads remote changes but does not merge, `git pull` does both' },
         ]
     },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     {
+        id: 'git-githuburse',
+        title: 'Git & Git Course',
+        category: 'أدوات المطورين',
+        description: 'دوع الفرق.',
+        sessions: [
+            { id: 'session-git-1', title: '01 - Whats Git & GitHub & Why U Should Learn Part 1', videoId: 'ACOiGZoqC8w', quiz: [{ question: 'What is Git?', options: ['A programming language', 'A version control system', 'A text editor', 'A web browser'], correctAnswer: 'A version control system' }] },
+           ],
+        finalQuiz: [
+         
+            { question: 'What is the difference between `git pull` and `git fetch`?', options: ['They are the same', '`git fetch` downloads remote changes but does not merge, `git pull` does both', '`git pull` downloads remote changes but does not merge, `git fetch` does both', '`git fetch` is for uploading, `git pull` is for downloading'], correctAnswer: '`git fetch` downloads remote changes but does not merge, `git pull` does both' },
+        ]
+    },
+
+
+
+
  
 ];
 
